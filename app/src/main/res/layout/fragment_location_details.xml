@@ -1,0 +1,22 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background_primary">
+
+    <!--<com.astuetz.PagerSlidingTabStrip-->
+        <!--android:id="@+id/sliding_tabs_header"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="?attr/actionBarSize"-->
+        <!--android:layout_gravity="center"-->
+        <!--android:background="@color/primary_light"-->
+        <!--android:textSize="@dimen/text_size_normal"-->
+        <!--app:pstsShouldExpand="true"/>-->
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/viewpager_my_properties"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+</LinearLayout>

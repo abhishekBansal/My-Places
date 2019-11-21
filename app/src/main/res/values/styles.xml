@@ -1,0 +1,36 @@
+<resources>
+    <!--Base Application theme-->
+    <style name="AppTheme" parent="Theme.AppCompat">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryDark">@color/primary_dark</item>
+        <item name="colorAccent">@color/color_accent</item>
+        <item name="colorControlNormal">@color/color_control_normal</item>
+        <item name="colorControlActivated">@color/color_accent</item>
+        <item name="colorControlHighlight">@color/color_accent</item>
+
+        <!-- Used to color the overflow menu icon -->
+        <item name="actionMenuTextColor">@color/text_color_secondary</item>
+        <!-- Used to for the title of the Toolbar -->
+        <item name="android:textColorPrimary">@color/text_color_primary</item>
+        <!-- Used to color the text of the action menu icons -->
+        <item name="android:textColorSecondary">@color/text_color_secondary</item>
+
+        <item name="actionBarStyle">@style/RActionBarTheme</item>
+
+        <item name="android:dialogTheme">@style/RDialogTheme</item>
+    </style>
+
+    <style name="RActionBarTheme" parent="Base.Widget.AppCompat.ActionBar.Solid">
+        <item name="elevation">0dp</item>
+    </style>
+
+    <style name="RDialogTheme" parent="Theme.AppCompat.Dialog">
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryDark">@color/primary_dark</item>
+        <item name="colorAccent">@color/color_accent</item>
+        <item name="colorControlNormal">@color/color_control_normal</item>
+        <item name="colorControlActivated">@color/color_accent</item>
+        <item name="colorControlHighlight">@color/color_accent</item>
+    </style>
+</resources>

@@ -1,0 +1,83 @@
+buildscript{
+    repositories {
+        mavenCentral()
+        maven { url 'https://maven.fabric.io/public' }
+    }
+    dependencies{
+        classpath 'org.greenrobot:greendao-gradle-plugin:3.2.1'
+        classpath 'io.fabric.tools:gradle:1.+'
+    }
+}
+
+apply plugin: 'com.android.application'
+apply plugin: 'io.fabric'
+
+repositories {
+    maven { url 'https://maven.fabric.io/public' }
+}
+
+apply plugin: 'org.greenrobot.greendao'
+
+greendao {
+    // added isParkedCar in version 6
+    schemaVersion 6
+}
+
+android {
+    compileSdkVersion 25
+    buildToolsVersion "25.0.1"
+
+    defaultConfig {
+        applicationId "rrapps.myplaces"
+        minSdkVersion 16
+        targetSdkVersion 25
+        versionCode 2
+        versionName "1.1"
+    }
+
+    signingConfigs {
+        release {
+            Properties localProps = new Properties()
+            localProps.load(new FileInputStream(file('../credentials.properties')))
+            storeFile file(localProps['storeFile'])
+            storePassword localProps['storePassword']
+            keyAlias localProps['keyAlias']
+            keyPassword localProps['keyPassword']
+        }
+    }
+
+    buildTypes {
+        release {
+            signingConfig signingConfigs.release
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile 'com.android.support:appcompat-v7:25.0.1'
+
+    compile 'com.jakewharton:butterknife:8.4.0'
+    annotationProcessor 'com.jakewharton:butterknife-compiler:8.4.0'
+
+    compile 'org.greenrobot:greendao:3.2.0'
+
+    provided 'org.projectlombok:lombok:1.16.4'
+
+    compile 'com.hudomju:swipe-to-dismiss-undo:1.0'
+    compile 'com.android.support:cardview-v7:25.0.1'
+    compile 'com.google.android.gms:play-services-location:10.0.1'
+
+    compile 'com.android.support:design:25.0.1'
+
+    compile 'com.jakewharton.timber:timber:4.3.1'
+    compile('com.crashlytics.sdk.android:crashlytics:2.6.5@aar') {
+        transitive = true;
+    }
+
+    // fab menu
+    compile 'com.github.clans:fab:1.6.4'
+}
