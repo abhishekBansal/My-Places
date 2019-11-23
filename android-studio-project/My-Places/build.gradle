@@ -1,0 +1,123 @@
+buildscript{
+    repositories {
+        google()
+        mavenCentral()
+        jcenter()
+    }
+
+    dependencies{
+        classpath 'org.greenrobot:greendao-gradle-plugin:' + pluginVersionGreenDAO    // https://mvnrepository.com/artifact/org.greenrobot/greendao-gradle-plugin
+    }
+}
+
+apply from: '../constants.gradle'
+apply plugin: 'com.android.application'
+apply plugin: 'org.greenrobot.greendao'
+
+greendao {
+    schemaVersion Integer.valueOf(schemaVersionGreenDAO)
+}
+
+android {
+    compileSdkVersion project.ext.compileSdkVersion
+    buildToolsVersion project.ext.buildToolsVersion
+
+    compileOptions {
+        sourceCompatibility project.ext.javaVersion
+        targetCompatibility project.ext.javaVersion
+    }
+
+    defaultConfig {
+        minSdkVersion project.ext.minSdkVersion
+        targetSdkVersion project.ext.targetSdkVersion
+
+        applicationId project.ext.applicationId
+        versionName   project.ext.releaseVersion
+        versionCode   project.ext.releaseVersionCode
+
+        // NOTE: Can be referenced in code by 'BuildConfig.SCHEMA_VERSION'
+        buildConfigField("int", "SCHEMA_VERSION", schemaVersionGreenDAO)
+    }
+
+    signingConfigs {
+        release {
+            v1SigningEnabled true;
+            v2SigningEnabled true;
+
+            storeType "jks"
+        }
+    }
+
+    lintOptions {
+        disable 'MissingTranslation'
+        abortOnError true
+    }
+
+    buildTypes {
+        release {
+            shrinkResources true
+            minifyEnabled   true
+            proguardFiles = [
+                "proguard-rules.txt",
+                getDefaultProguardFile('proguard-android.txt')
+            ]
+        }
+        debug {
+            jniDebuggable = true
+        }
+    }
+}
+
+dependencies {
+    implementation      'androidx.core:core:'                               + project.ext.libVersionSupport        // https://mvnrepository.com/artifact/androidx.core/core
+    implementation      'androidx.fragment:fragment:'                       + project.ext.libVersionSupport        // https://mvnrepository.com/artifact/androidx.fragment/fragment
+    implementation      'androidx.appcompat:appcompat:'                     + project.ext.libVersionSupport        // https://mvnrepository.com/artifact/androidx.appcompat/appcompat
+
+    compileOnly         'androidx.annotation:annotation:'                   + project.ext.libVersionSupport        // https://mvnrepository.com/artifact/androidx.annotation/annotation
+    annotationProcessor 'androidx.annotation:annotation:'                   + project.ext.libVersionSupport        // https://mvnrepository.com/artifact/androidx.annotation/annotation
+
+    implementation      'androidx.coordinatorlayout:coordinatorlayout:'     + project.ext.libVersionCoordLayout    // https://mvnrepository.com/artifact/androidx.coordinatorlayout/coordinatorlayout
+
+    implementation      'com.google.android.material:material:'             + project.ext.libVersionMaterial       // https://mvnrepository.com/artifact/com.google.android.material/material
+
+    implementation      'com.google.android.gms:play-services-location:'    + project.ext.libVersionGmsLocation    // https://mvnrepository.com/artifact/com.google.android.gms/play-services-location
+    implementation      'com.google.android.gms:play-services-maps:'        + project.ext.libVersionGmsLocation    // https://mvnrepository.com/artifact/com.google.android.gms/play-services-maps
+
+    compileOnly         'org.projectlombok:lombok:'                         + project.ext.libVersionLombok         // https://mvnrepository.com/artifact/org.projectlombok/lombok
+    annotationProcessor 'org.projectlombok:lombok:'                         + project.ext.libVersionLombok         // https://mvnrepository.com/artifact/org.projectlombok/lombok
+
+    implementation      'com.github.clans:fab:'                             + project.ext.libVersionFab            // https://mvnrepository.com/artifact/com.github.clans/fab
+
+    implementation      'org.greenrobot:greendao:'                          + project.ext.libVersionGreenDAO       // https://mvnrepository.com/artifact/org.greenrobot/greendao
+
+    implementation      'com.jakewharton:butterknife:'                      + project.ext.libVersionButterKnife    // https://mvnrepository.com/artifact/com.jakewharton/butterknife
+
+    compileOnly         'com.jakewharton:butterknife-compiler:'             + project.ext.libVersionButterKnife    // https://mvnrepository.com/artifact/com.jakewharton/butterknife-compiler
+    annotationProcessor 'com.jakewharton:butterknife-compiler:'             + project.ext.libVersionButterKnife    // https://mvnrepository.com/artifact/com.jakewharton/butterknife-compiler
+
+    implementation      'com.jakewharton.timber:timber:'                    + project.ext.libVersionTimber         // https://mvnrepository.com/artifact/com.jakewharton.timber/timber
+
+    implementation      'com.hudomju:swipe-to-dismiss-undo:'                + project.ext.libVersionSwipeUndo      // https://mvnrepository.com/artifact/com.hudomju/swipe-to-dismiss-undo
+}
+
+def keystorePropsPath = './credentials.properties';
+if (rootProject.file(keystorePropsPath).exists()) {
+    println 'Signing Release application...'
+
+    Properties props = new Properties();
+    props.load(rootProject.file(keystorePropsPath).newDataInputStream())
+
+    // Overrides default signing config fields
+    android.signingConfigs.release.storeFile     = rootProject.file(props['storeFile'])
+    android.signingConfigs.release.storePassword = props['storePassword']
+    android.signingConfigs.release.keyAlias      = props['keyAlias']
+    android.signingConfigs.release.keyPassword   = props['keyPassword']
+
+    android.buildTypes.release.signingConfig     = android.signingConfigs.release
+
+    println "Release application signed by keystore: '${android.buildTypes.release.signingConfig.storeFile.absolutePath}'"
+} else {
+    android.buildTypes.release.signingConfig = null
+
+    println "Please, verify the existence of file: '${rootProject.file(keystorePropsPath).absolutePath}'"
+}

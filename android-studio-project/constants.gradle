@@ -1,0 +1,20 @@
+project.ext {
+    applicationId         = 'rrapps.myplaces'
+    releaseVersionCode    = 2
+    releaseVersion        = '1.1'
+    minSdkVersion         = 16
+    targetSdkVersion      = 28
+    compileSdkVersion     = 28
+    buildToolsVersion     = '28.0.3'
+    javaVersion           = JavaVersion.VERSION_1_8
+    libVersionSupport     = '1.1.0'
+    libVersionCoordLayout = '1.0.0'
+    libVersionMaterial    = '1.0.0'
+    libVersionGmsLocation = '17.0.0'
+    libVersionLombok      = '1.18.10'
+    libVersionFab         = '1.6.4'
+    libVersionGreenDAO    = pluginVersionGreenDAO
+    libVersionButterKnife = '10.2.0'
+    libVersionTimber      = '4.7.1'
+    libVersionSwipeUndo   = '1.0'
+}
