@@ -2,12 +2,13 @@ package rrapps.myplaces.view.fragments;
 
 import android.Manifest;
 import android.app.ProgressDialog;
-import android.content.ActivityNotFoundException;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.location.Location;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
@@ -37,25 +38,28 @@ import butterknife.OnItemClick;
 import rrapps.myplaces.MyPlacesApplication;
 import rrapps.myplaces.PermissionUtils;
 import rrapps.myplaces.R;
-import rrapps.myplaces.adapters.PlaceListAdapter;
+import rrapps.myplaces.adapters.LocationListAdapter;
 import rrapps.myplaces.asyncTasks.GetPlacesAsyncTask;
 import rrapps.myplaces.model.DaoSession;
 import rrapps.myplaces.model.MPLocation;
 import rrapps.myplaces.model.MPLocationDao;
+import rrapps.myplaces.services.FetchAddressIntentService;
 import rrapps.myplaces.utils.CommonDialogs;
 import rrapps.myplaces.utils.ContextUtils;
+import rrapps.myplaces.view.activities.LocationDetailsActivity;
 import rrapps.myplaces.view.fragments.dialogs.AddPlaceDialogFragment;
 import rrapps.myplaces.view.fragments.dialogs.ThemedInfoDialog;
 import timber.log.Timber;
 
 
-public class PlaceListFragment extends Fragment
+public class LocationListFragment extends Fragment
         implements GetPlacesAsyncTask.LocationsFetchedListener,
         DialogInterface.OnDismissListener,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener {
 
     private static final int MY_PERMISSIONS_REQUEST_LOCATION = 11;
+
     @BindView(R.id.lv_location)
     ListView mLocationListView;
 
@@ -67,9 +71,19 @@ public class PlaceListFragment extends Fragment
 
     private GoogleApiClient mGoogleApiClient;
 
-    private PlaceListAdapter mAdapter;
+    private LocationListAdapter mAdapter;
 
     private ProgressDialog mProgressDialog;
+
+    BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if(intent.getAction().equals(FetchAddressIntentService.SUCCESS_ACTION_STRING)
+                    && getActivity() != null) {
+                refresh();
+            }
+        }
+    };
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -88,13 +102,18 @@ public class PlaceListFragment extends Fragment
             Timber.d("Permissions Checked, GPS Checked, Building API client");
             buildGoogleApiClient();
         }
+
+        refresh();
+
+        getActivity().registerReceiver(mBroadcastReceiver,
+                new IntentFilter(FetchAddressIntentService.SUCCESS_ACTION_STRING));
     }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        mAdapter = new PlaceListAdapter(getActivity(), mOnClickListener);
+        mAdapter = new LocationListAdapter(getActivity(), mOnClickListener);
         mLocationListView.setAdapter(mAdapter);
 
         final SwipeToDismissTouchListener<ListViewAdapter> touchListener =
@@ -126,12 +145,16 @@ public class PlaceListFragment extends Fragment
             }
         });
 
-        refresh();
-
         if(!PermissionUtils.hasLocationPermission(getActivity())) {
             Timber.i("Requesting for location permission");
             requestForLocationPermission();
         }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        getActivity().unregisterReceiver(mBroadcastReceiver);
     }
 
     private void requestForLocationPermission() {
@@ -222,10 +245,10 @@ public class PlaceListFragment extends Fragment
 
     @OnItemClick(R.id.lv_location)
     public void openLocationDetails(int index) {
-//        MPLocation location = mAdapter.getItem(index);
-//        Intent intent = new Intent(getActivity(), LocationDetailsActivity.class);
-//        intent.putExtra(LocationDetailsActivity.LOCATION_KEY, location);
-//        startActivity(intent);
+        MPLocation location = mAdapter.getItem(index);
+        Intent intent = new Intent(getActivity(), LocationDetailsActivity.class);
+        intent.putExtra(LocationDetailsActivity.LOCATION_KEY, location);
+        startActivity(intent);
     }
 
     @Override
@@ -271,7 +294,8 @@ public class PlaceListFragment extends Fragment
 
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
-        Toast.makeText(getActivity(), R.string.could_not_fetch_location, Toast.LENGTH_LONG).show();
+        Toast.makeText(getActivity(), R.string.could_not_fetch_location,
+                Toast.LENGTH_LONG).show();
         Timber.e( "Connection to location service was failed");
         hideProgressDialog();
     }
@@ -283,8 +307,8 @@ public class PlaceListFragment extends Fragment
                 if(mGoogleApiClient != null) {
                     Location lastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
                     if (lastLocation == null) {
-                        Snackbar.make(mEmptyView, R.string.try_after_few_seconds, Snackbar.LENGTH_LONG)
-                                .show();
+                        Snackbar.make(mEmptyView, R.string.try_after_few_seconds,
+                                Snackbar.LENGTH_LONG).show();
                         return;
                     }
 
@@ -350,31 +374,13 @@ public class PlaceListFragment extends Fragment
             switch (v.getId()) {
                 case R.id.button_share: {
                     MPLocation place = (MPLocation) v.getTag();
-                    String geoUri = "http://maps.google.com/maps?q=loc:"
-                            + place.getLatitude() + ","
-                            + place.getLongitude();
-                    Intent sendIntent = new Intent();
-                    sendIntent.setAction(Intent.ACTION_SEND);
-                    sendIntent.putExtra(Intent.EXTRA_TEXT,
-                            place.getName() + "\n" + geoUri + "\n\nSent Via MyPlaces Android App");
-                    sendIntent.setType("text/plain");
-                    startActivity(sendIntent);
-
+                    Intent intent = ContextUtils.shareLocationIntent(place);
+                    startActivity(intent);
                     break;
                 }
                 case R.id.button_navigate: {
                     MPLocation place = (MPLocation) v.getTag();
-                    String uri = "geo:" + place.getLatitude() + ","
-                            + place.getLongitude()
-                            + "?q=" + place.getLatitude()
-                            + "," + place.getLongitude();
-                    try {
-                        startActivity(new Intent(Intent.ACTION_VIEW,
-                                Uri.parse(uri)));
-                    } catch (ActivityNotFoundException e) {
-                        Toast.makeText(getActivity(), R.string.no_map_application, Toast.LENGTH_LONG).show();
-                        Timber.e("Could not find any map installed application to view this location");
-                    }
+                    ContextUtils.navigateToLocation(place, getActivity());
                     break;
                 }
                 default:

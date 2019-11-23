@@ -10,6 +10,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import rrapps.myplaces.MyPlacesApplication;
+import rrapps.myplaces.model.DaoSession;
 import rrapps.myplaces.model.MPLocation;
 import rrapps.myplaces.model.MPLocationDao;
 
@@ -31,7 +32,9 @@ public class GetPlacesAsyncTask extends AsyncTask<Void, Void, List<MPLocation>> 
 
     @Override
     protected List<MPLocation> doInBackground(Void... voids) {
-        MPLocationDao dao = MyPlacesApplication.getInstance().getDaoSession().getMPLocationDao();
+        DaoSession session = MyPlacesApplication.getInstance().getDaoSession();
+        session.clear();
+        MPLocationDao dao =  session.getMPLocationDao();
         Query<MPLocation> query = dao.queryBuilder().build();
         List<MPLocation> locationList = query.list();
         Collections.sort(locationList, new Comparator<MPLocation>() {

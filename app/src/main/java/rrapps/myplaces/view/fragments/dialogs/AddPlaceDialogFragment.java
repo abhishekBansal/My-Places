@@ -2,6 +2,7 @@ package rrapps.myplaces.view.fragments.dialogs;
 
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -24,6 +25,8 @@ import rrapps.myplaces.R;
 import rrapps.myplaces.model.DaoSession;
 import rrapps.myplaces.model.MPLocation;
 import rrapps.myplaces.model.MPLocationDao;
+import rrapps.myplaces.services.FetchAddressIntentService;
+import rrapps.myplaces.utils.ContextUtils;
 import timber.log.Timber;
 
 /**
@@ -84,7 +87,10 @@ public class AddPlaceDialogFragment extends DialogFragment {
             mpLocation.setLongitude(mLastLocation.getLongitude());
             DaoSession session = MyPlacesApplication.getInstance().getDaoSession();
             MPLocationDao locationDao = session.getMPLocationDao();
-            locationDao.insertOrReplace(mpLocation);
+            long key = locationDao.insertOrReplace(mpLocation);
+
+            ContextUtils.startFetchAddressService(key, mpLocation.getLatitude(),
+                    mpLocation.getLongitude(), getActivity());
 
             mOnDismissListener.onDismiss(getDialog());
             dismiss();

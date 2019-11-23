@@ -8,6 +8,8 @@
     <dimen name="location_list_item_height">90dp</dimen>
     <dimen name="margin_default">16dp</dimen>
     <dimen name="text_size_large">16sp</dimen>
+    <dimen name="text_size_x">8sp</dimen>
+    <dimen name="text_size_3x2">12sp</dimen>
     <dimen name="text_size_circular_initial">20sp</dimen>
     <dimen name="margin_small">8dp</dimen>
 

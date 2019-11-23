@@ -6,6 +6,7 @@ package rrapps.myplaces.adapters;
  */
 
 import android.content.Context;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,16 +14,18 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import org.w3c.dom.Text;
+
 import java.util.List;
 
 import rrapps.myplaces.R;
 import rrapps.myplaces.model.MPLocation;
 
-public class PlaceListAdapter extends ArrayAdapter<MPLocation> {
+public class LocationListAdapter extends ArrayAdapter<MPLocation> {
 
     private View.OnClickListener mOnClickListener;
 
-    public PlaceListAdapter(Context context, View.OnClickListener onClickListener) {
+    public LocationListAdapter(Context context, View.OnClickListener onClickListener) {
         super(context, 0);
         mOnClickListener = onClickListener;
     }
@@ -37,6 +40,7 @@ public class PlaceListAdapter extends ArrayAdapter<MPLocation> {
             viewHolder = new MPLocationViewHolder();
             viewHolder.locationNameTv = (TextView)convertView.findViewById(R.id.tv_location_name);
             viewHolder.locationInitialTv = (TextView)convertView.findViewById(R.id.tv_location_initial);
+            viewHolder.locationAddressTv = (TextView)convertView.findViewById(R.id.tv_location_address);
             viewHolder.navigateToBtn = (ImageButton)convertView.findViewById(R.id.button_navigate);
             viewHolder.shareBtn = (ImageButton)convertView.findViewById(R.id.button_share);
 
@@ -48,6 +52,12 @@ public class PlaceListAdapter extends ArrayAdapter<MPLocation> {
         MPLocation location = getItem(position);
         viewHolder.locationNameTv.setText(location.getName());
         viewHolder.locationInitialTv.setText(location.getName().substring(0, 1).toUpperCase());
+        if(!TextUtils.isEmpty(location.getAddress())) {
+            viewHolder.locationAddressTv.setText(location.getAddress());
+        } else {
+            viewHolder.locationAddressTv.setText("");
+        }
+
         viewHolder.shareBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -71,6 +81,7 @@ public class PlaceListAdapter extends ArrayAdapter<MPLocation> {
     private static class MPLocationViewHolder {
         TextView locationNameTv;
         TextView locationInitialTv;
+        TextView locationAddressTv;
         ImageButton navigateToBtn;
         ImageButton shareBtn;
     }

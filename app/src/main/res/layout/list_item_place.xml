@@ -25,17 +25,30 @@
             android:textColor="@android:color/white"
             tools:text="H"/>
 
-        <TextView
-            android:id="@+id/tv_location_name"
+        <LinearLayout
+            android:orientation="vertical"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:paddingLeft="@dimen/padding_default"
-            android:textSize="@dimen/text_size_large"
-            android:textStyle="bold"
-            android:textColor="@android:color/white"
-            tools:text="Home"/>
+            android:paddingLeft="@dimen/padding_default">
+            <TextView
+                android:id="@+id/tv_location_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/text_size_large"
+                tools:text="Home"/>
+
+            <TextView
+                android:id="@+id/tv_location_address"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:textSize="@dimen/text_size_3x2"
+                android:layout_marginTop="@dimen/margin_x2"
+                android:singleLine="true"
+                tools:text="1039, Second Floor, Gate no 2 Road"/>
+        </LinearLayout>
 
         <ImageButton
             android:id="@+id/button_navigate"
