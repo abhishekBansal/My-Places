@@ -352,7 +352,9 @@ public class LocationListFragment extends Fragment
 
                     DaoSession session = MyPlacesApplication.getInstance().getDaoSession();
                     MPLocationDao locationDao = session.getMPLocationDao();
-                    locationDao.insertOrReplace(carLocation);
+                    long key = locationDao.insertOrReplace(carLocation);
+
+                    ContextUtils.startFetchAddressService(key, carLocation.getLatitude(), carLocation.getLongitude(), getActivity());
 
                     refresh();
                 }
