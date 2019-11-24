@@ -22,6 +22,8 @@ target
 
 # Local configuration file (sdk path, etc)
 local.properties
+credentials.properties
+fabric.properties
 
 # Eclipse project files
 .classpath
@@ -47,9 +49,9 @@ Thumbs.db
 
 # gradle directory
 .gradle
-gradlew
-gradlew.bat
-gradle/
+# gradlew
+# gradlew.bat
+# gradle/
 build/
 
 # crashlytics
