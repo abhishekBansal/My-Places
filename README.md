@@ -2,7 +2,7 @@
 
 Save, View, Navigate to and Share your places in a quickest possible way
 
-This is the official source code repository for the [_My Places_]((https://play.google.com/store/apps/details?id=rrapps.myplaces)) android app.
+This is the official source code repository for the [_My Places_](https://play.google.com/store/apps/details?id=rrapps.myplaces) android app.
 
 [![Get it on Google Play](https://play.google.com/intl/en_gb/badges/images/generic/en_badge_web_generic.png)](https://play.google.com/store/apps/details?id=rrapps.myplaces)
 
