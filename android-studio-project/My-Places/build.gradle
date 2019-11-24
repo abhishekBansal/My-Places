@@ -81,7 +81,8 @@ dependencies {
     implementation      'com.google.android.material:material:'             + project.ext.libVersionMaterial       // https://mvnrepository.com/artifact/com.google.android.material/material
 
     implementation      'com.google.android.gms:play-services-location:'    + project.ext.libVersionGmsLocation    // https://mvnrepository.com/artifact/com.google.android.gms/play-services-location
-    implementation      'com.google.android.gms:play-services-maps:'        + project.ext.libVersionGmsLocation    // https://mvnrepository.com/artifact/com.google.android.gms/play-services-maps
+
+    implementation      'org.osmdroid:osmdroid-android:'                    + project.ext.libVersionOSMdroid       // https://mvnrepository.com/artifact/org.osmdroid/osmdroid-android
 
     compileOnly         'org.projectlombok:lombok:'                         + project.ext.libVersionLombok         // https://mvnrepository.com/artifact/org.projectlombok/lombok
     annotationProcessor 'org.projectlombok:lombok:'                         + project.ext.libVersionLombok         // https://mvnrepository.com/artifact/org.projectlombok/lombok

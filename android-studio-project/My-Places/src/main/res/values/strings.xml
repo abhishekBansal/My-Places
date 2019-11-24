@@ -1,6 +1,5 @@
 <resources>
     <string name="app_name">My Places</string>
-    <string name="google_maps_key" translatable="false">AIzaSyA4O7umpQGsBrGWlILbUjnxjJcOE5DHg2g</string>
     <string name="action_settings">Settings</string>
     <!--TODO - figure out a better message -->
     <string name="add_new_location">Add a new Place</string>

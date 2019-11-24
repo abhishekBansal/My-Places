@@ -23,8 +23,8 @@
             app:expandedTitleMarginStart="24dp"
             app:expandedTitleMarginEnd="64dp">
 
-            <FrameLayout
-                android:id="@+id/map_container"
+            <org.osmdroid.views.MapView
+                android:id="@+id/map_view"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scaleType="centerCrop"

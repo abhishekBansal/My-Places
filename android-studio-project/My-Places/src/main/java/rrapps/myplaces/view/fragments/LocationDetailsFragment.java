@@ -1,7 +1,9 @@
 package rrapps.myplaces.view.fragments;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 import androidx.fragment.app.Fragment;
 import androidx.appcompat.app.AppCompatActivity;
@@ -15,7 +17,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
-import com.google.android.gms.maps.model.LatLng;
+import org.osmdroid.api.IMapController;
+import org.osmdroid.config.Configuration;
+import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
+import org.osmdroid.util.GeoPoint;
+import org.osmdroid.views.MapView;
+import org.osmdroid.views.overlay.Marker;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -29,8 +36,8 @@ import rrapps.myplaces.view.widgets.EditableTextView;
 
 public class LocationDetailsFragment extends Fragment {
 
-    @BindView(R.id.map_container)
-    FrameLayout mMapContainer;
+    @BindView(R.id.map_view)
+    MapView mMapView;
 
     @BindView(R.id.toolbar)
     Toolbar mToolbar;
@@ -68,12 +75,6 @@ public class LocationDetailsFragment extends Fragment {
         if (mLocation != null) {
             mToolbar.setTitle(mLocation.getName());
             getActivity().setTitle(mLocation.getName());
-            LatLng latLng = new LatLng(mLocation.getLatitude(), mLocation.getLongitude());
-            DynamicMapFragment fragment = DynamicMapFragment.newInstance(latLng, DynamicMapFragment.DEFAULT_ZOOM, true);
-            getChildFragmentManager().beginTransaction()
-                    .replace(R.id.map_container, fragment)
-                    .commit();
-
             setupView();
         }
 
@@ -98,6 +99,7 @@ public class LocationDetailsFragment extends Fragment {
     }
 
     private void setupView() {
+        setupMap();
         setupAddress();
         setupName();
         setupNotes();
@@ -132,6 +134,41 @@ public class LocationDetailsFragment extends Fragment {
                 }
             }
         });
+    }
+
+    private void setupMap() {
+        Context ctx = getActivity().getApplicationContext();
+        Configuration.getInstance().load(ctx, PreferenceManager.getDefaultSharedPreferences(ctx));
+
+        mMapView.setTileSource(TileSourceFactory.MAPNIK);
+        mMapView.setBuiltInZoomControls(true);
+        mMapView.setMultiTouchControls(true);
+
+        IMapController mapController = mMapView.getController();
+        mapController.setZoom(18);
+
+        GeoPoint startPoint = new GeoPoint(mLocation.getLatitude(), mLocation.getLongitude());
+        mapController.setCenter(startPoint);
+
+        Marker startMarker = new Marker(mMapView);
+        startMarker.setPosition(startPoint);
+        startMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
+
+        // disable InfoWindow by handling click events
+        startMarker.setOnMarkerClickListener(new Marker.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker, MapView mapView) {
+                return true;
+            }
+        });
+
+        // replace default icon:
+        //   https://github.com/osmdroid/osmdroid/raw/master/OpenStreetMapViewer/src/main/res/drawable/marker_default.png
+        // size:
+        //    27x48
+        startMarker.setIcon(ctx.getResources().getDrawable(R.drawable.map_marker));
+
+        mMapView.getOverlays().add(startMarker);
     }
 
     private void setupAddress() {

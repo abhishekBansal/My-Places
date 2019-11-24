@@ -11,6 +11,7 @@ project.ext {
     libVersionCoordLayout = '1.0.0'
     libVersionMaterial    = '1.0.0'
     libVersionGmsLocation = '17.0.0'
+    libVersionOSMdroid    = '6.1.2'
     libVersionLombok      = '1.18.10'
     libVersionFab         = '1.6.4'
     libVersionGreenDAO    = pluginVersionGreenDAO
