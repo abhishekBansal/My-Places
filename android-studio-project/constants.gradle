@@ -1,7 +1,7 @@
 project.ext {
     applicationId         = 'rrapps.myplaces'
-    releaseVersionCode    = 2
-    releaseVersion        = '1.1'
+    releaseVersionCode    = 4
+    releaseVersion        = '1.30'
     minSdkVersion         = 16
     targetSdkVersion      = 28
     compileSdkVersion     = 28

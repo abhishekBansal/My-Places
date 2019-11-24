@@ -41,8 +41,8 @@ android {
 
     signingConfigs {
         release {
-            v1SigningEnabled true;
-            v2SigningEnabled true;
+            v1SigningEnabled true
+            v2SigningEnabled true
 
             storeType "jks"
         }
