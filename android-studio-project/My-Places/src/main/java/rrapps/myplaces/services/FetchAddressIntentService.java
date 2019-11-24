@@ -75,9 +75,10 @@ public class FetchAddressIntentService extends IntentService {
         String address = "";
 
         String requestURL = String.format(
-            "https://reverse.geocoder.api.here.com/6.2/reversegeocode.json?prox=%1$s,%2$s&mode=retrieveAddresses&maxresults=1&gen=9&app_id=%3$s&app_code=%4$s",
+            "https://reverse.geocoder.api.here.com/6.2/reversegeocode.json?prox=%1$s,%2$s,%3$s&mode=retrieveAddresses&maxresults=1&gen=9&app_id=%4$s&app_code=%5$s",
             latitude,
             longitude,
+            FetchAddressIntentService.this.getString(R.string.HERE_API_RADIUS_METERS),
             FetchAddressIntentService.this.getString(R.string.HERE_API_APP_ID),
             FetchAddressIntentService.this.getString(R.string.HERE_API_APP_CODE)
         );
