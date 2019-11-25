@@ -9,11 +9,11 @@ import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
 import java.net.URL;
 
 import javax.net.ssl.HttpsURLConnection;
 
+import rrapps.myplaces.R;
 import rrapps.myplaces.MyPlacesApplication;
 import rrapps.myplaces.model.MPLocation;
 import rrapps.myplaces.model.MPLocationDao;
@@ -45,13 +45,9 @@ public class FetchAddressIntentService extends IntentService {
 
         Timber.i("Starting reverse geo coding service %d, %f, %f", locationId, latitude, longitude);
         try {
-            String query = "" + latitude + "," +longitude;
-            String url = "https://maps.googleapis.com/maps/api/geocode/json?latlng="
-                    + query;
-            Timber.d("URL: %s", url);
-            response = getAddressesByURL(url);
+            String address = getAddressByLatLon(latitude, longitude);
 
-            if (response == null) {
+            if ((address == null) || address.isEmpty()) {
                 if (errorMessage.isEmpty()) {
                     errorMessage = "Not Found";
                     Timber.e(errorMessage);
@@ -59,9 +55,6 @@ public class FetchAddressIntentService extends IntentService {
                 deliverResultToReceiver();
             } else {
                 try {
-                    JSONObject jsonObject = new JSONObject(response);
-                    String address = ((JSONArray) jsonObject.get("results")).getJSONObject(0)
-                            .getString("formatted_address");
                     MPLocationDao dao = MyPlacesApplication.getInstance().getDaoSession().getMPLocationDao();
                     MPLocation location =
                             dao.queryBuilder().where(MPLocationDao.Properties.Id.eq(locationId)).unique();
@@ -69,29 +62,63 @@ public class FetchAddressIntentService extends IntentService {
                     dao.insertOrReplace(location);
 
                     deliverResultToReceiver();
-                } catch (JSONException e) {
-                    Timber.e(e, "Error fetching addresses for location id %l", locationId);
+                } catch (Exception e) {
+                    Timber.e(e, "Error fetching address for location id %l", locationId);
                 }
             }
         } catch (Exception e) {
-            Timber.e(e, "Exception while trying to fetch address from google apis");
+            Timber.e(e, "Error while trying to fetch address from 'developer.here.com' API");
         }
     }
 
-    public String getAddressesByURL(String requestURL) {
+    private String getAddressByLatLon(double latitude, double longitude) {
+        String address = "";
+
+        String requestURL = String.format(
+            "https://reverse.geocoder.api.here.com/6.2/reversegeocode.json?prox=%1$s,%2$s,%3$s&mode=retrieveAddresses&maxresults=1&gen=9&app_id=%4$s&app_code=%5$s",
+            latitude,
+            longitude,
+            FetchAddressIntentService.this.getString(R.string.HERE_API_RADIUS_METERS),
+            FetchAddressIntentService.this.getString(R.string.HERE_API_APP_ID),
+            FetchAddressIntentService.this.getString(R.string.HERE_API_APP_CODE)
+        );
+        Timber.d("URL: %s", requestURL);
+
+        String response = getHttpResponseByUrl(requestURL);
+
+        if ((response == null) || response.isEmpty()) {
+            return address;
+        }
+
+        try {
+            JSONObject jsonObject;
+            jsonObject = new JSONObject(response);
+            jsonObject = (JSONObject) jsonObject.get("Response");
+            jsonObject = ((JSONArray) jsonObject.get("View")).getJSONObject(0);
+            jsonObject = ((JSONArray) jsonObject.get("Result")).getJSONObject(0);
+            jsonObject = (JSONObject) jsonObject.get("Location");
+            jsonObject = (JSONObject) jsonObject.get("Address");
+
+            address = jsonObject.getString("Label");
+        } catch (JSONException e) {
+            Timber.e(e, "Error fetching address from JSON server response %s", response);
+
+            address = "";
+        }
+        return address;
+    }
+
+    private String getHttpResponseByUrl(String requestURL) {
         URL url;
         String response = "";
         try {
             url = new URL(requestURL);
 
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setReadTimeout(15000);
-            conn.setConnectTimeout(15000);
-            conn.setRequestMethod("GET");
+            HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+            conn.setDoOutput(false);
             conn.setDoInput(true);
-            conn.setRequestProperty("Content-Type",
-                    "application/x-www-form-urlencoded");
-            conn.setDoOutput(true);
+            conn.setRequestMethod("GET");
+
             int responseCode = conn.getResponseCode();
 
             if (responseCode == HttpsURLConnection.HTTP_OK) {
@@ -105,8 +132,6 @@ public class FetchAddressIntentService extends IntentService {
                 Timber.e("Response Code: %d", responseCode);
                 response = "";
             }
-
-
         } catch (Exception e) {
             e.printStackTrace();
         }
